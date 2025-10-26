@@ -1,3 +1,4 @@
+LICENSE
 setup.py
 fraudguard.egg-info/PKG-INFO
 fraudguard.egg-info/SOURCES.txt
