@@ -18,3 +18,4 @@ ipython==8.18.1
 pytest==7.4.3
 black==23.11.0
 ruff==0.1.6
+python-multipart==0.0.6

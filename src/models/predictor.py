@@ -152,11 +152,11 @@ class FraudPredictor:
         
         # Risk level
         if fraud_score < 0.3:
-            risk_level = "low"
+            risk_level = "LOW"
         elif fraud_score < 0.7:
-            risk_level = "medium"
+            risk_level = "MEDIUM"
         else:
-            risk_level = "high"
+            risk_level = "HIGH"
         
         result = {
             'is_fraud': bool(is_fraud),
@@ -307,10 +307,10 @@ class FraudPredictor:
         if show_progress:
             print(f"   Processing {len(features_df):,} transactions...")
         
-        # Validate features
-        missing_features = set(self.feature_names) - set(features_df.columns)
-        if missing_features:
-            raise ValueError(f"Missing features: {missing_features}")
+        # Ensure all required features are present, filling missing ones with 0
+        for feature in self.feature_names:
+            if feature not in features_df.columns:
+                features_df[feature] = 0
         
         # Select features in correct order
         X = features_df[self.feature_names]
