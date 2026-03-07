@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: fraudguard-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    region: oregon  # or choose: frankfurt, singapore, ohio
+    envVars:
+      - key: DEBUG
+        value: false
+      - key: MODEL_PATH
+        value: models/fraud_model.pkl
+      - key: FEATURE_NAMES_PATH
+        value: models/feature_names.json
+      - key: DEFAULT_THRESHOLD
+        value: 0.75
+      - key: PORT
+        generateValue: true
+    healthCheckPath: /api/v1/health
