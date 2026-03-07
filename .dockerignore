@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# Data (too large for Docker image)
+data/raw/*
+data/processed/*
+*.csv
+
+# Jupyter notebooks (not needed in production)
+.ipynb_checkpoints/
+notebooks/
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Documentation (not needed in container)
+docs/
+
+# Tests (not needed in production)
+tests/
+scripts/test_*.py
+scripts/test_*.sh
+
+# CI/CD
+.github/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.log
+tmp/
+temp/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/

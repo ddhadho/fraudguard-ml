@@ -1,0 +1,29 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fraudguard-api
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=false
+      - MODEL_PATH=models/fraud_model.pkl
+      - FEATURE_NAMES_PATH=models/feature_names.json
+      - DEFAULT_THRESHOLD=0.75
+    volumes:
+      # Mount models directory (so you can update model without rebuilding)
+      - ./models:/app/models:ro
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - fraudguard-network
+
+networks:
+  fraudguard-network:
+    driver: bridge

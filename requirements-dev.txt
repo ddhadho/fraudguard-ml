@@ -1,0 +1,10 @@
+-r requirements.txt
+faker==20.1.0
+matplotlib==3.8.2
+seaborn==0.13.0
+jupyter==1.0.0
+ipython==8.18.1
+pytest==7.4.3
+black==23.11.0
+ruff==0.1.6
+
