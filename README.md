@@ -293,12 +293,6 @@ docker run -d -p 8000:8000 fraudguard-api
 
 ---
 
-## Contributing
-
-This is a portfolio project, but feedback is welcome
-
----
-
 ## License
 
 MIT License - see [LICENSE](LICENSE) file
