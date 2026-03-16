@@ -8,6 +8,7 @@ import time
 import pandas as pd
 
 from src.api.schemas import (
+    RawTransactionRequest,
     TransactionRequest,
     TransactionResponse,
     TransactionResponseDetailed,
@@ -19,6 +20,7 @@ from src.api.schemas import (
 from src.api.dependencies import get_predictor, get_uptime
 from src.api.config import settings
 from src.models.predictor import FraudPredictor
+from src.api.feature_builder import build_features
 
 
 router = APIRouter()
@@ -232,4 +234,64 @@ async def get_model_info(predictor: FraudPredictor = Depends(get_predictor)):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get model info: {str(e)}"
+        )
+
+@router.post(
+    "/score/raw",
+    response_model=TransactionResponse,
+    tags=["Fraud Detection"],
+    summary="Score a raw transaction (simple)",
+    description="Send a real transaction — API calculates all features automatically"
+)
+async def score_raw_transaction(
+    request: RawTransactionRequest,
+    predictor: FraudPredictor = Depends(get_predictor)
+):
+    """
+    The easiest way to score a transaction.
+
+    Just send the actual transaction fields — no need to pre-calculate
+    any features. The API handles all 52 feature calculations internally.
+
+    Minimum required fields:
+    - **user_id**: Who made the transaction
+    - **amount**: How much
+    - **timestamp**: When (e.g. '2026-03-16 02:15:00')
+    - **receiver**: Who received it
+    - **device_id**: What device was used
+    - **device_changed**: Did the device change from last transaction?
+    - **location_changed**: Did the location change?
+
+    Optional but improves accuracy:
+    - user_avg_amount, user_std_amount, tx_count_1h, etc.
+    """
+    start_time = time.time()
+
+    try:
+        # Build all 52 features from the raw transaction
+        features = build_features(request)
+
+        # Predict
+        result = predictor.predict(features)
+
+        processing_time_ms = (time.time() - start_time) * 1000
+
+        return TransactionResponse(
+            transaction_id=request.transaction_id,
+            is_fraud=result['is_fraud'],
+            fraud_score=result['fraud_score'],
+            risk_level=result['risk_level'],
+            threshold=result['threshold'],
+            processing_time_ms=processing_time_ms
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Invalid transaction data: {str(e)}"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Prediction failed: {str(e)}"
         )

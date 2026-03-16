@@ -279,3 +279,50 @@ class ErrorResponse(BaseModel):
                 "detail": "Amount must be positive"
             }
         }
+
+class RawTransactionRequest(BaseModel):
+    """Simple raw transaction - API calculates all features internally"""
+
+    transaction_id: Optional[str] = Field(None, description="Transaction ID")
+    user_id: str = Field(..., description="User ID")
+    amount: float = Field(..., gt=0, description="Transaction amount")
+    timestamp: str = Field(..., description="Transaction datetime e.g. '2026-03-16 02:15:00'")
+    receiver: str = Field(..., description="Receiver name or account")
+    device_id: str = Field(..., description="Device identifier")
+    device_changed: bool = Field(False, description="Did device change from last transaction?")
+    location_changed: bool = Field(False, description="Did location change from last transaction?")
+
+    # Optional context (improves accuracy if you have it)
+    user_avg_amount: float = Field(500.0, gt=0, description="User's historical average amount")
+    user_std_amount: float = Field(200.0, ge=0, description="User's historical std deviation")
+    user_tx_number: int = Field(1, ge=1, description="How many transactions this user has made total")
+    tx_count_1h: int = Field(0, ge=0, description="How many transactions in last 1 hour")
+    tx_count_24h: int = Field(0, ge=0, description="How many transactions in last 24 hours")
+    tx_amount_1h: float = Field(0.0, ge=0, description="Total amount transacted in last 1 hour")
+    tx_amount_24h: float = Field(0.0, ge=0, description="Total amount transacted in last 24 hours")
+    time_since_last_tx: float = Field(3600.0, ge=0, description="Seconds since last transaction")
+    receiver_tx_count: int = Field(0, ge=0, description="Previous transactions to this receiver")
+    is_new_receiver: Optional[int] = Field(None, description="Leave blank to auto-detect from receiver_tx_count")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "transaction_id": "TXN_001",
+                "user_id": "USER_123",
+                "amount": 85000,
+                "timestamp": "2026-03-16 02:15:00",
+                "receiver": "Jane Doe",
+                "device_id": "iPhone-XR-001",
+                "device_changed": True,
+                "location_changed": False,
+                "user_avg_amount": 5000,
+                "user_std_amount": 3000,
+                "user_tx_number": 45,
+                "tx_count_1h": 3,
+                "tx_count_24h": 7,
+                "tx_amount_1h": 90000,
+                "tx_amount_24h": 120000,
+                "time_since_last_tx": 180,
+                "receiver_tx_count": 0
+            }
+        }
